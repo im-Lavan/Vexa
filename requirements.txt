@@ -7,3 +7,4 @@ pyttsx3
 openwakeword
 pyaudio
 rich
+requests
