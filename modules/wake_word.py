@@ -10,7 +10,7 @@ def load_model():
     return Model(wakeword_models=[config.WAKE_WORD_MODEL], inference_framework="onnx")
 
 
-def listen_for_wake_word(model, on_detected):
+def listen_for_wake_word(model):
     detected = False
 
     def callback(indata, frames, time, status):
@@ -38,5 +38,3 @@ def listen_for_wake_word(model, on_detected):
                 sd.sleep(100)
         except sd.CallbackStop:
             pass
-
-    on_detected()

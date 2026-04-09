@@ -1,6 +1,6 @@
 GROQ_API_KEY = "your_groq_api_key_here"
 
-GROQ_MODEL = "llama3-70b-8192"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 
 WAKE_WORD_MODEL = "hey jarvis"
 
