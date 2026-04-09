@@ -1,0 +1,8 @@
+openai-whisper
+sounddevice
+numpy
+scipy
+groq
+pyttsx3
+openwakeword
+pyaudio
