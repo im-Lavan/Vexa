@@ -6,3 +6,4 @@ groq
 pyttsx3
 openwakeword
 pyaudio
+rich
