@@ -1,5 +1,7 @@
 import sys
+import time
 from modules import tts, listener, stt, brain, wake_word
+from modules import context as ctx
 from modules.ui import (
     console,
     show_banner,
@@ -13,34 +15,53 @@ from modules.ui import (
     show_thinking,
     show_user_message,
     show_jarvis_message,
+    show_conversation_mode,
+    show_returning_to_standby,
     show_no_input,
     show_error,
     show_separator,
     show_shutdown,
 )
+import config
+
+EXIT_PHRASES = {"goodbye", "bye", "stop", "exit", "shut down", "shutdown", "go to sleep"}
 
 
-def run_pipeline(engine):
-    show_wake_detected()
+def conversation_loop(engine):
+    misses = 0
 
-    with show_listening():
-        audio = listener.record_audio()
+    while misses < config.CONVERSATION_MAX_MISSES:
+        with show_listening():
+            audio = listener.record_audio()
 
-    with show_transcribing():
-        text = stt.transcribe(audio)
+        with show_transcribing():
+            text = stt.transcribe(audio)
 
-    if not text:
-        show_no_input()
-        tts.speak("I didn't catch that. Could you repeat?", engine)
-        return
+        if not text:
+            misses += 1
+            show_no_input()
+            show_conversation_mode(misses, config.CONVERSATION_MAX_MISSES)
+            if misses < config.CONVERSATION_MAX_MISSES:
+                tts.speak("I didn't catch that.", engine)
+            continue
 
-    show_user_message(text)
+        misses = 0
+        show_user_message(text)
 
-    with show_thinking():
-        reply = brain.think(text)
+        if any(phrase in text.lower() for phrase in EXIT_PHRASES):
+            reply = "Understood. Going back to standby mode."
+            show_jarvis_message(reply)
+            tts.speak(reply, engine)
+            break
 
-    show_jarvis_message(reply)
-    tts.speak(reply, engine)
+        with show_thinking():
+            reply = brain.think(text)
+
+        show_jarvis_message(reply)
+        tts.speak(reply, engine)
+        time.sleep(config.POST_TTS_DELAY)
+
+    show_returning_to_standby()
     show_separator()
 
 
@@ -57,6 +78,9 @@ def main():
     with show_initializing("Loading wake word model..."):
         model = wake_word.load_model()
 
+    with show_initializing("Fetching location..."):
+        ctx.fetch_location()
+
     show_online()
     tts.speak("JARVIS online. Say 'Hey JARVIS' to begin.", engine)
 
@@ -64,7 +88,8 @@ def main():
         try:
             with show_wake_waiting():
                 wake_word.listen_for_wake_word(model)
-            run_pipeline(engine)
+            show_wake_detected()
+            conversation_loop(engine)
         except KeyboardInterrupt:
             show_shutdown()
             tts.speak("Goodbye.", engine)

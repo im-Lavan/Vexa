@@ -134,6 +134,20 @@ def show_jarvis_message(text):
     console.print(panel)
 
 
+def show_conversation_mode(miss_count, max_misses):
+    remaining = max_misses - miss_count
+    console.print(
+        f"  [dim green]Conversation active —[/] "
+        f"[dim]listening ({remaining} attempt{'s' if remaining != 1 else ''} left before standby)[/]"
+    )
+    console.print()
+
+
+def show_returning_to_standby():
+    console.print("  [dim cyan]Returning to standby. Say \"Hey JARVIS\" to resume.[/]")
+    console.print()
+
+
 def show_no_input():
     console.print("  [dim yellow]No speech detected. Try again.[/]")
     console.print()

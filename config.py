@@ -14,6 +14,10 @@ TTS_RATE = 175
 
 TTS_VOLUME = 1.0
 
+CONVERSATION_MAX_MISSES = 3
+
+POST_TTS_DELAY = 1.0
+
 JARVIS_SYSTEM_PROMPT = (
     "You are JARVIS, an intelligent and helpful AI assistant. "
     "You respond in a concise, professional, and slightly witty tone. "

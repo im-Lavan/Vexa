@@ -1,5 +1,6 @@
 from groq import Groq
 import config
+from modules.context import get_location, get_datetime_str
 
 _client = None
 _history = []
@@ -12,12 +13,20 @@ def get_client():
     return _client
 
 
+def _build_system_message():
+    context = (
+        f"Current date and time: {get_datetime_str()}. "
+        f"User's location: {get_location()}."
+    )
+    return f"{config.JARVIS_SYSTEM_PROMPT} {context}"
+
+
 def think(user_input):
     client = get_client()
 
     _history.append({"role": "user", "content": user_input})
 
-    messages = [{"role": "system", "content": config.JARVIS_SYSTEM_PROMPT}] + _history
+    messages = [{"role": "system", "content": _build_system_message()}] + _history
 
     response = client.chat.completions.create(
         model=config.GROQ_MODEL,
